@@ -8,8 +8,8 @@ let placedAnswers = [];
 let questions = [];
 
 const directions = [
-  [0, 1],   // horizontal right
-  [1, 0]    // vertical down
+  [0, 1],     // left to right
+  [1, 0]      // top to bottom
 ];
 
 const allQuestions = [
@@ -20,7 +20,7 @@ const allQuestions = [
   { hint: "Used on blackboard", answer: "CHALK" },
   { hint: "Tallest mountain", answer: "EVEREST" },
   { hint: "Fastest land animal", answer: "CHEETAH" },
-  { hint: "Yellow fruit", answer: "MANGO" },
+  { hint: "Sweet fruit", answer: "MANGO" },
   { hint: "Computer brain", answer: "CPU" },
   { hint: "Coldest continent", answer: "ANTARCTICA" },
   { hint: "Shape with 3 sides", answer: "TRIANGLE" },
@@ -32,11 +32,16 @@ const allQuestions = [
   { hint: "Type of dance", answer: "SALSA" },
   { hint: "Pet that barks", answer: "DOG" },
   { hint: "Used to cut", answer: "SCISSORS" },
-  { hint: "Frozen water", answer: "ICE" }
+  { hint: "Frozen water", answer: "ICE" },
+  { hint: "Star we see daily", answer: "SUN" },
+  { hint: "Month with Valentine's", answer: "FEBRUARY" },
+  { hint: "Festival of colors", answer: "HOLI" },
+  { hint: "Rain protector", answer: "UMBRELLA" },
+  { hint: "Holiest river in India", answer: "GANGA" }
 ];
 
 function getRandomQuestions(pool, count) {
-  const shuffled = pool.sort(() => 0.5 - Math.random());
+  const shuffled = [...pool].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
@@ -66,7 +71,7 @@ function placeWord(word) {
         r += dir[0];
         c += dir[1];
       }
-      placedAnswers.push(word);
+      placedAnswers.push({ word, row, col, dir });
       return true;
     }
   }
@@ -87,7 +92,6 @@ function fillGridRandomLetters() {
 function drawGrid() {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
-
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       const cell = document.createElement("div");
@@ -96,60 +100,53 @@ function drawGrid() {
       cell.dataset.row = r;
       cell.dataset.col = c;
 
-      // Mouse events
-      cell.addEventListener("mousedown", (e) => {
-        e.preventDefault();
+      const handleSelect = () => {
+        if (!path.includes(cell)) {
+          path.push(cell);
+          cell.classList.add("selected");
+        }
+      };
+
+      cell.addEventListener("mousedown", () => {
         mouseDown = true;
         path = [cell];
         cell.classList.add("selected");
       });
 
       cell.addEventListener("mouseover", () => {
-        if (mouseDown && !path.includes(cell)) {
-          path.push(cell);
-          cell.classList.add("selected");
-        }
+        if (mouseDown) handleSelect();
       });
 
-      cell.addEventListener("mouseup", () => {
-        if (mouseDown) {
-          checkWord();
-          mouseDown = false;
-          path.forEach(c => c.classList.remove("selected"));
-          path = [];
-        }
-      });
-
-      // Touch events
       cell.addEventListener("touchstart", (e) => {
         e.preventDefault();
         mouseDown = true;
-        const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-        if (target && target.classList.contains("cell")) {
-          path = [target];
-          target.classList.add("selected");
-        }
+        path = [cell];
+        cell.classList.add("selected");
       });
 
       cell.addEventListener("touchmove", (e) => {
-        const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-        if (mouseDown && target && target.classList.contains("cell") && !path.includes(target)) {
-          path.push(target);
-          target.classList.add("selected");
+        const touch = e.touches[0];
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (el && el.classList.contains("cell") && !path.includes(el)) {
+          path.push(el);
+          el.classList.add("selected");
         }
       });
 
-      cell.addEventListener("touchend", () => {
-        if (mouseDown) {
-          checkWord();
-          mouseDown = false;
-          path.forEach(c => c.classList.remove("selected"));
-          path = [];
-        }
-      });
+      cell.addEventListener("mouseup", finishSelection);
+      cell.addEventListener("touchend", finishSelection);
 
       grid.appendChild(cell);
     }
+  }
+}
+
+function finishSelection() {
+  if (mouseDown) {
+    checkWord();
+    mouseDown = false;
+    path.forEach(c => c.classList.remove("selected"));
+    path = [];
   }
 }
 
@@ -159,37 +156,29 @@ function checkWord() {
 
   if (word === correctAnswer) {
     path.forEach(c => c.classList.add("found"));
-    questions[currentQuestionIndex].revealed = true; // mark as revealed
     score++;
     currentQuestionIndex++;
     updateQuestion();
     resultBox.innerText = "";
   } else {
     resultBox.innerText = `❌ Incorrect! Try again.`;
-    setTimeout(() => {
-      resultBox.innerText = "";
-    }, 1000);
+    setTimeout(() => resultBox.innerText = "", 1000);
   }
 }
-
 
 function updateQuestion() {
   const questionBox = document.getElementById("questionBox");
+  const blanks = document.getElementById("answerBlanks");
   if (currentQuestionIndex < questions.length) {
-    const current = questions[currentQuestionIndex];
-    const blanks = current.revealed ? current.answer.split('').join(' ') : "_ ".repeat(current.answer.length).trim();
-    questionBox.innerText = `Q${currentQuestionIndex + 1}: ${current.hint} | ${blanks}`;
+    const q = questions[currentQuestionIndex];
+    questionBox.innerText = `Q${currentQuestionIndex + 1}: ${q.hint}`;
+    blanks.innerText = "_ ".repeat(q.answer.length).trim();
   } else {
     questionBox.innerText = `🎉 Congratulations! You scored ${score}/${questions.length}`;
     document.getElementById("playAgainBtn").style.display = "inline-block";
+    document.getElementById("hintBtn").style.display = "none";
+    document.getElementById("answerBlanks").innerText = "";
   }
-}
-
-
-function initGame() {
-  fillGridRandomLetters();
-  drawGrid();
-  updateQuestion();
 }
 
 function restartGame() {
@@ -197,6 +186,8 @@ function restartGame() {
   score = 0;
   resultBox.innerText = "";
   document.getElementById("playAgainBtn").style.display = "none";
+  document.getElementById("hintBtn").style.display = "inline-block";
+  document.getElementById("answerBlanks").innerText = "";
 
   questions = [];
   gridData = Array(size).fill().map(() => Array(size).fill(''));
@@ -205,7 +196,7 @@ function restartGame() {
   const shuffled = getRandomQuestions(allQuestions, allQuestions.length);
   for (let q of shuffled) {
     if (questions.length < 5 && placeWord(q.answer)) {
-      questions.push({ ...q, revealed: false }); // add revealed property
+      questions.push(q);
     }
   }
 
@@ -214,11 +205,29 @@ function restartGame() {
     return;
   }
 
-  initGame();
+  fillGridRandomLetters();
+  drawGrid();
+  updateQuestion();
+}
+
+function showHint() {
+  const answer = questions[currentQuestionIndex].answer;
+  const data = placedAnswers.find(p => p.word === answer);
+  if (!data) return;
+
+  let r = data.row, c = data.col;
+  for (let i = 0; i < answer.length; i++) {
+    const cell = document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+    if (cell) {
+      cell.classList.add("hint-blink");
+      setTimeout(() => cell.classList.remove("hint-blink"), 1000);
+    }
+    r += data.dir[0];
+    c += data.dir[1];
+  }
 }
 
 const resultBox = document.getElementById("resultBox");
+document.getElementById("hintBtn").addEventListener("click", showHint);
 document.addEventListener("mouseup", () => (mouseDown = false));
-document.addEventListener("touchend", () => (mouseDown = false));
-
 restartGame();

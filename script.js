@@ -1,4 +1,4 @@
-const size = 10;
+const size = 6;
 let gridData = Array(size).fill().map(() => Array(size).fill(''));
 let currentQuestionIndex = 0;
 let score = 0;
@@ -14,30 +14,25 @@ const directions = [
 
 const allQuestions = [
   { hint: "Capital of India", answer: "DELHI" },
-  { hint: "Largest ocean", answer: "PACIFIC" },
   { hint: "Red planet", answer: "MARS" },
   { hint: "King of Jungle", answer: "LION" },
   { hint: "Used on blackboard", answer: "CHALK" },
-  { hint: "Tallest mountain", answer: "EVEREST" },
-  { hint: "Fastest land animal", answer: "CHEETAH" },
   { hint: "Sweet fruit", answer: "MANGO" },
   { hint: "Computer brain", answer: "CPU" },
-  { hint: "Coldest continent", answer: "ANTARCTICA" },
-  { hint: "Shape with 3 sides", answer: "TRIANGLE" },
   { hint: "Smallest prime", answer: "TWO" },
   { hint: "Opposite of day", answer: "NIGHT" },
-  { hint: "Green vegetable", answer: "SPINACH" },
-  { hint: "Planet with rings", answer: "SATURN" },
-  { hint: "India's currency", answer: "RUPEE" },
-  { hint: "Type of dance", answer: "SALSA" },
+  { hint: "Green vegetable", answer: "PEAS" },
   { hint: "Pet that barks", answer: "DOG" },
-  { hint: "Used to cut", answer: "SCISSORS" },
+  { hint: "Used to cut", answer: "BLADE" },
   { hint: "Frozen water", answer: "ICE" },
   { hint: "Star we see daily", answer: "SUN" },
-  { hint: "Month with Valentine's", answer: "FEBRUARY" },
-  { hint: "Festival of colors", answer: "HOLI" },
-  { hint: "Rain protector", answer: "UMBRELLA" },
-  { hint: "Holiest river in India", answer: "GANGA" }
+  { hint: "Rain protector", answer: "COAT" },
+  { hint: "Holiest river in India", answer: "GANGA" },
+  { hint: "Baby cat", answer: "KITTEN" },
+  { hint: "Lives in water", answer: "FISH" },
+  { hint: "Flying mammal", answer: "BAT" },
+  { hint: "Has four wheels", answer: "CAR" },
+  { hint: "Opposite of cold", answer: "HOT" }
 ];
 
 function getRandomQuestions(pool, count) {

@@ -28,11 +28,11 @@ const allQuestions = [
   { hint: "Star we see daily", answer: "SUN" },
   { hint: "Rain protector", answer: "COAT" },
   { hint: "Holiest river in India", answer: "GANGA" },
-  { hint: "Baby cat", answer: "KITTEN" },
   { hint: "Lives in water", answer: "FISH" },
   { hint: "Flying mammal", answer: "BAT" },
   { hint: "Has four wheels", answer: "CAR" },
-  { hint: "Opposite of cold", answer: "HOT" }
+  { hint: "Opposite of cold", answer: "HOT" },
+  { hint: "Big wild cat", answer: "TIGER" }
 ];
 
 function getRandomQuestions(pool, count) {
@@ -188,7 +188,8 @@ function restartGame() {
   gridData = Array(size).fill().map(() => Array(size).fill(''));
   placedAnswers = [];
 
-  const shuffled = getRandomQuestions(allQuestions, allQuestions.length);
+  const shortAnswers = allQuestions.filter(q => q.answer.length <= 5);
+  const shuffled = getRandomQuestions(shortAnswers, shortAnswers.length);
   for (let q of shuffled) {
     if (questions.length < 5 && placeWord(q.answer)) {
       questions.push(q);

@@ -7,7 +7,7 @@ body {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(10, 40px);
+  grid-template-columns: repeat(6, 40px); /* ✅ Changed from 10 to 6 */
   grid-gap: 4px;
   justify-content: center;
   margin-top: 20px;
